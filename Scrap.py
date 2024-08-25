@@ -2,8 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from typing import List, NewType
+import functools
 
 Link = NewType('Link', str)
+
+LIMIT = 50
+APPEND_OR_CREATE_MODE = "a+"
 
 class Crawler:
     def __init__(self, root_link: Link):
@@ -12,7 +16,7 @@ class Crawler:
         self.visited_urls = set()
 
     def crawl(self):
-        while len(self.urls) != 0:
+        while len(self.urls) != 0 and len(self.urls) <= LIMIT:
             # get the page to visit from the list
             current_url = self.urls.pop()
             if current_url in self.visited_urls:
@@ -38,6 +42,15 @@ class Scraping:
             return False
         return True
 
+    def save_txt(self, file_name:Link, content:str):
+        # remove '/'s from file name as file_name will be a link
+        file_name = file_name.replace('/', '.')
+        file_name = file_name.strip('.')
+        file_name = file_name + '.txt'
+
+        with open(file_name, APPEND_OR_CREATE_MODE) as file:
+            file.write(content)
+
     def __text_from_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
         texts = soup.findAll(string=True)
@@ -47,6 +60,8 @@ class Scraping:
     def text_from_link(self, link:Link):
         response = requests.get(link)
         html = response.content
-        return self.__text_from_html(html)
+        visible_content = self.__text_from_html(html)
+        self.save_txt(link, visible_content)
+        return visible_content
 
 # print(Scraping().text_from_link('https://www.scrapingcourse.com/ecommerce/'))
