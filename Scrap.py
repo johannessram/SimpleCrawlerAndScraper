@@ -24,6 +24,7 @@ class Crawler:
             print(current_url)
             self.visited_urls.add(current_url)
             response = requests.get(current_url)
+            time.sleep(5)
             soup = BeautifulSoup(response.content, "html.parser")
 
             link_elements = soup.select("a[href]")
@@ -59,6 +60,7 @@ class Scraping:
 
     def text_from_link(self, link:Link):
         response = requests.get(link)
+        time.sleep(5)
         html = response.content
         visible_content = self.__text_from_html(html)
         self.save_txt(link, visible_content)
