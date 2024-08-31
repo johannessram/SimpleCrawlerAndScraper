@@ -17,7 +17,7 @@ class Crawler:
         self.visited_urls = set()
 
     def crawl(self):
-        while len(self.urls) != 0 and len(self.urls) <= LIMIT:
+        while len(self.urls) != 0 and len(self.visited_urls) <= LIMIT:
             # get the page to visit from the list
             current_url = self.urls.pop()
             if current_url in self.visited_urls:
