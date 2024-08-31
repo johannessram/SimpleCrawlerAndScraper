@@ -4,6 +4,8 @@ from bs4.element import Comment
 from typing import List, NewType
 import functools
 import time
+import logging
+
 
 Link = NewType('Link', str)
 
@@ -19,23 +21,31 @@ class Crawler:
     def crawl(self):
         while len(self.urls) != 0 and len(self.visited_urls) <= LIMIT:
             # get the page to visit from the list
-            current_url = self.urls.pop()
+            current_url = self.urls.pop(0)
             if current_url in self.visited_urls:
                 continue
             print(current_url)
-            self.visited_urls.add(current_url)
+            self.__process(current_url)
+        return self.visited_urls
+
+
+    def __process(self, current_url):
+        self.visited_urls.add(current_url)
+        try:
             response = requests.get(current_url)
             time.sleep(5)
-            soup = BeautifulSoup(response.content, "html.parser")
+        except Exception as exception:
+            logging.info(exception)
+            return
+        soup = BeautifulSoup(response.content, "html.parser")
 
-            link_elements = soup.select("a[href]")
-            for link_element in link_elements:
-                url = link_element['href']
-                # do not process if external link
-                if url.startswith(self.root_link):
-                  self.urls.append(url)
-        
-        return self.visited_urls
+        link_elements = soup.select("a[href]")
+        for link_element in link_elements:
+            url = link_element['href']
+            # do not process if external link
+            if url.startswith(self.root_link):
+                self.urls.append(url)
+
 
 class Scraping:
     def __tag_visible(self, element):
