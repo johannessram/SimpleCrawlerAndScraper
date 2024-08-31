@@ -31,8 +31,9 @@ class Crawler:
             link_elements = soup.select("a[href]")
             for link_element in link_elements:
                 url = link_element['href']
-                if self.root_link in url:
-                    self.urls.append(url)
+                # do not process if external link
+                if url.startswith(self.root_link):
+                  self.urls.append(url)
         
         return self.visited_urls
 
