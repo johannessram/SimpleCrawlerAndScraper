@@ -8,43 +8,7 @@ import logging
 
 
 Link = NewType('Link', str)
-
-LIMIT = 50
 APPEND_OR_CREATE_MODE = "a+"
-
-class Crawler:
-    def __init__(self, root_link: Link):
-        self.root_link = root_link
-        self.urls = [root_link]
-        self.visited_urls = set()
-
-    def crawl(self):
-        while len(self.urls) != 0 and len(self.visited_urls) <= LIMIT:
-            # get the page to visit from the list
-            current_url = self.urls.pop(0)
-            if current_url in self.visited_urls:
-                continue
-            print(current_url)
-            self.__process(current_url)
-        return self.visited_urls
-
-
-    def __process(self, current_url):
-        self.visited_urls.add(current_url)
-        try:
-            response = requests.get(current_url)
-            time.sleep(5)
-        except Exception as exception:
-            logging.info(exception)
-            return
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        link_elements = soup.select("a[href]")
-        for link_element in link_elements:
-            url = link_element['href']
-            # do not process if external link
-            if url.startswith(self.root_link):
-                self.urls.append(url)
 
 
 class Scraping:
@@ -78,4 +42,4 @@ class Scraping:
         self.save_txt(link, visible_content)
         return visible_content
 
-# print(Scraping().text_from_link('https://www.scrapingcourse.com/ecommerce/'))
+print(Scraping().text_from_link('https://www.scrapingcourse.com/ecommerce/'))
