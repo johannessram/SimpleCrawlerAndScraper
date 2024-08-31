@@ -9,9 +9,22 @@ import logging
 
 Link = NewType('Link', str)
 APPEND_OR_CREATE_MODE = "a+"
+ValidFilename = NewType('ValidFilename', str)
 
 
 class Scraping:
+    def __format_filename(self, filename:Link, prefix:str='', suffix:str='.dump.txt') -> ValidFilename:
+        # remove '/'s from file name as filename will be a link
+        filename = filename.replace('//', '')
+        filename = filename.replace('/', '.')
+        filename = filename.strip('.')
+        filename = prefix + filename + suffix
+        return filename
+    
+    def __save(self, file_name, content:str):
+        with open(self.filename, APPEND_OR_CREATE_MODE) as file:
+            file.write(content + "\n")
+
     def __tag_visible(self, element):
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
@@ -19,14 +32,6 @@ class Scraping:
             return False
         return True
 
-    def save_txt(self, file_name:Link, content:str):
-        # remove '/'s from file name as file_name will be a link
-        file_name = file_name.replace('/', '.')
-        file_name = file_name.strip('.')
-        file_name = file_name + '.txt'
-
-        with open(file_name, APPEND_OR_CREATE_MODE) as file:
-            file.write(content)
 
     def __text_from_html(self, html):
         soup = BeautifulSoup(html, 'html.parser')
@@ -34,12 +39,16 @@ class Scraping:
         visible_texts = filter(self.__tag_visible, texts)  
         return u" ".join(t.strip() for t in visible_texts)
 
-    def text_from_link(self, link:Link):
+    def text_from_link(self, link:Link, file_name:str=None):
+        if not file_name:
+            file_name = self.__format_filename(link)
+        self.filename = file_name
+
         response = requests.get(link)
         time.sleep(5)
         html = response.content
         visible_content = self.__text_from_html(html)
-        self.save_txt(link, visible_content)
+        self.__save(file_name, visible_content)
         return visible_content
 
 print(Scraping().text_from_link('https://www.scrapingcourse.com/ecommerce/'))

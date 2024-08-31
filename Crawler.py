@@ -33,7 +33,7 @@ class Crawler:
 
     def __format_filename(self, filename:Link, prefix:str='', suffix:str='.txt') -> ValidFilename:
         # remove '/'s from file name as filename will be a link
-        filename = filename.replace('//', '.')
+        filename = filename.replace('//', '')
         filename = filename.replace('/', '.')
         filename = filename.strip('.')
         filename = prefix + filename + suffix
