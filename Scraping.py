@@ -21,7 +21,7 @@ class Scraping:
         filename = prefix + filename + suffix
         return filename
     
-    def __save(self, file_name, content:str):
+    def __save(self, filename, content:str):
         with open(self.filename, APPEND_OR_CREATE_MODE) as file:
             file.write(content + "\n")
 
@@ -39,16 +39,16 @@ class Scraping:
         visible_texts = filter(self.__tag_visible, texts)  
         return u" ".join(t.strip() for t in visible_texts)
 
-    def text_from_link(self, link:Link, file_name:str=None):
-        if not file_name:
-            file_name = self.__format_filename(link)
-        self.filename = file_name
+    def text_from_link(self, link:Link, filename:str=None):
+        if not filename:
+            filename = self.__format_filename(link)
+        self.filename = filename
 
         response = requests.get(link)
         time.sleep(5)
         html = response.content
         visible_content = self.__text_from_html(html)
-        self.__save(file_name, visible_content)
+        self.__save(filename, visible_content)
         return visible_content
 
 print(Scraping().text_from_link('https://www.scrapingcourse.com/ecommerce/'))
