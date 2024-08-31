@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 from typing import List, NewType
 import functools
+import time
 
 Link = NewType('Link', str)
 
